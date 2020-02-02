@@ -314,6 +314,8 @@ class HashcatCracker:
                         continue
                     if msgStr.find('ADL_Overdrive5_CurrentActivity_Get()') >= 0:
                         continue
+                    if msgStr.find('error generated') >= 0 or msgStr.find('errors generated') >= 0:
+                        continue
 
                     logging.error("HC error: " + msgStr)
                     send_error(msg, self.config.get_value('token'), task['taskId'], chunk['chunkId'])
