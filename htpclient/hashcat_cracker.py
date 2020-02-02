@@ -48,12 +48,17 @@ class HashcatCracker:
         self.uses_slow_hash_flag = False
         self.wasStopped = False
 
+    def build_outfile_format(self, task, chunk):
+        # hash[:salt]:plain:hex_plain:crack_pos
+        #return "15"
+        return "1,2,3,4"
+
     def build_command(self, task, chunk):
         args = " --machine-readable --quiet --status --restore-disable --session=hashtopolis"
         args += " --status-timer " + str(task['statustimer'])
         args += " --outfile-check-timer=" + str(task['statustimer'])
         args += " --outfile-check-dir=../../hashlist_" + str(task['hashlistId'])
-        args += " -o ../../hashlists/" + str(task['hashlistId']) + ".out --outfile-format=15 -p \"" + str(chr(9)) + "\""
+        args += " -o ../../hashlists/" + str(task['hashlistId']) + ".out --outfile-format=" + self.build_outfile_format(task, chunk) + " -p \"" + str(chr(9)) + "\""
         args += " -s " + str(chunk['skip'])
         args += " -l " + str(chunk['length'])
         if 'useBrain' in task and task['useBrain']:  # when using brain we set the according parameters
@@ -77,7 +82,7 @@ class HashcatCracker:
         post_args += " --status-timer " + str(task['statustimer'])
         post_args += " --outfile-check-timer=" + str(task['statustimer'])
         post_args += " --outfile-check-dir=../../hashlist_" + str(task['hashlistId'])
-        post_args += " -o ../../hashlists/" + str(task['hashlistId']) + ".out --outfile-format=15 -p \"" + str(chr(9)) + "\""
+        post_args += " -o ../../hashlists/" + str(task['hashlistId']) + ".out --outfile-format=" + self.build_outfile_format(task, chunk) + " -p \"" + str(chr(9)) + "\""
         post_args += " --remove-timer=" + str(task['statustimer'])
         post_args += " ../../hashlists/" + str(task['hashlistId'])
         return self.callPath + pre_args + " | " + self.callPath + post_args + task['cmdpars']
@@ -94,7 +99,7 @@ class HashcatCracker:
         post_args += " --status-timer " + str(task['statustimer'])
         post_args += " --outfile-check-timer=" + str(task['statustimer'])
         post_args += " --outfile-check-dir=../../hashlist_" + str(task['hashlistId'])
-        post_args += " -o ../../hashlists/" + str(task['hashlistId']) + ".out --outfile-format=15 -p \"" + str(chr(9)) + "\""
+        post_args += " -o ../../hashlists/" + str(task['hashlistId']) + ".out --outfile-format=" + self.build_outfile_format(task, chunk) + " -p \"" + str(chr(9)) + "\""
         post_args += " --remove-timer=" + str(task['statustimer'])
         post_args += " ../../hashlists/" + str(task['hashlistId'])
         post_args += get_rules_and_hl(update_files(task['attackcmd']), task['hashlistAlias']).replace(task['hashlistAlias'], '')
