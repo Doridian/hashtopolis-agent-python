@@ -303,10 +303,21 @@ class HashcatCracker:
                             pass  # logging.warning("HCOUT: " + line.strip())
                 elif identifier == 'ERR':
                     msg = escape_ansi(line.replace(b"\r\n", b"\n").decode('utf-8')).strip()
-                    if msg and str(msg) != '^C':  # this is maybe not the fanciest way, but as ctrl+c is sent to the underlying process it reports it to stderr
-                        logging.error("HC error: " + msg)
-                        send_error(msg, self.config.get_value('token'), task['taskId'], chunk['chunkId'])
-                        sleep(0.1)  # we set a minimal sleep to avoid overreaction of the client sending a huge number of errors, but it should not be slowed down too much, in case the errors are not critical and the agent can continue
+                    if not msg:
+                        continue
+                    msgStr = str(msg)
+                    if msgStr == '^C' or msg == '^':
+                        continue
+                    if msgStr.find('error: instruction not supported on this GPU') >= 0:
+                        continue
+                    if msgStr.find('V_ADD') >= 0 or msgStr.find('V_SUB') >= 0:
+                        continue
+                    if msgStr.find('ADL_Overdrive5_CurrentActivity_Get()') >= 0:
+                        continue
+
+                    logging.error("HC error: " + msgStr)
+                    send_error(msg, self.config.get_value('token'), task['taskId'], chunk['chunkId'])
+                    sleep(0.1)  # we set a minimal sleep to avoid overreaction of the client sending a huge number of errors, but it should not be slowed down too much, in case the errors are not critical and the agent can continue
 
     def measure_keyspace(self, task, chunk):
         if task['usePrince']:
